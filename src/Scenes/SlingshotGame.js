@@ -73,7 +73,7 @@ class SlingshotGame extends Phaser.Scene {
             this.isDragging = false;
 
             // Launch the bird based on drag direction and strength
-            const forceFactor = .5;
+            const forceFactor = .35;
             const dx = this.slingshotX - this.bird.x;
             const dy = this.slingshotY - this.bird.y;
 
