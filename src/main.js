@@ -4,6 +4,7 @@ const config = {
     type: Phaser.AUTO,
     width: 1600,
     height: 900,
+    pixelArt: true,
     physics: {
         default: 'matter',
         matter: {
@@ -11,7 +12,7 @@ const config = {
             debug: true
         }
     },
-    scene: SlingshotGame
+    scene: [SlingshotGame,]
 };
 
 
