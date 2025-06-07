@@ -11,7 +11,12 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     create() {
-        
+        //generate placeholder enemy texture
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0xff0000);
+        gfx.fillCircle(16, 16, 16);
+        gfx.generateTexture('enemy', 32, 32);
+        gfx.destroy();
         // Anims for cat
         this.anims.create({
             key: 'cat-run',
@@ -42,8 +47,31 @@ class SlingshotGame extends Phaser.Scene {
         this.input.on('pointerdown', this.startDrag, this);
         this.input.on('pointermove', this.doDrag, this);
         this.input.on('pointerup', this.release, this);
-
+        //destroy enemies on contact with the bird
+        this.matter.world.on('collisionstart', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+                const objA = bodyA.gameObject;
+                const objB = bodyB.gameObject;
+                if (objA === this.bird && this.enemies.contains(objB)) {
+                    objB.destroy();
+                } else if (objB === this.bird && this.enemies.contains(objA)) {
+                    objA.destroy();
+                }
+            });
+        });
         this.isDragging = false;
+        //spawn static placeholder enemies
+        this.enemies = this.add.group();
+        const enemyCount = 10;
+        for (let i = 0; i < enemyCount; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const enemy = this.matter.add.sprite(x, y, 'enemy', null, { isStatic: true });
+            enemy.setCircle(16);
+            enemy.setIgnoreGravity(true);
+            this.enemies.add(enemy);
+        }
     }
 
     startDrag(pointer) {
