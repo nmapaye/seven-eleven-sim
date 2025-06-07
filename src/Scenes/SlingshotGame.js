@@ -187,9 +187,11 @@ class SlingshotGame extends Phaser.Scene {
         // approximate gravity from Matter world
         const worldGravity = this.matter.world.engine.world.gravity.y * this.matter.world.engine.world.gravity.scale;
         const points = [];
-        const dt = 0.1;
-        for (let t = 0; t < 2; t += dt) {
+        // interval of points
+        const dt = 0.5;
+        for (let t = 0; t < 8; t += dt) {
             const x = startX + vx * t;
+            // y = start + prev point y + 1/2(Gravity*t^2)  THIS ISNT WORKING RIGHT
             const y = startY + vy * t + 0.5 * worldGravity * t * t;
             points.push({ x, y });
         }
