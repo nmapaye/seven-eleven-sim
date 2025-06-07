@@ -72,6 +72,30 @@ class SlingshotGame extends Phaser.Scene {
             enemy.setIgnoreGravity(true);
             this.enemies.add(enemy);
         }
+
+        // generate placeholder wall texture
+        const wallGfx = this.add.graphics();
+        wallGfx.fillStyle(0x888888);
+        wallGfx.fillRect(0, 0, 150, 20);
+        wallGfx.generateTexture('wall', 150, 20);
+        wallGfx.destroy();
+
+        // spawn rotating walls
+        this.walls = this.add.group();
+        const wallCount = 2;
+        for (let i = 0; i < wallCount; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const wall = this.matter.add.sprite(x, y, 'wall', null, { isStatic: true });
+            wall.setOrigin(0.5);
+            wall.setIgnoreGravity(true);
+            wall.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
+            wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
+            this.walls.add(wall);
+        }
+
+        // prepare for bird reset
+        this.resetScheduled = false;
     }
 
     startDrag(pointer) {
@@ -115,5 +139,32 @@ class SlingshotGame extends Phaser.Scene {
     update(time, delta){
         // Slight Parallax/Scrolling Background
         this.bg.tilePositionX += 0.02 * delta;
+
+        // check if bird left screen and schedule reset
+        if (!this.resetScheduled && !this.bird.body.isStatic) {
+            const width = this.scale.width;
+            const height = this.scale.height;
+            if (this.bird.x < 0 || this.bird.x > width || this.bird.y < 0 || this.bird.y > height) {
+                this.resetScheduled = true;
+                this.time.delayedCall(3000, this.resetBird, [], this);
+            }
+        }
+
+        // rotate walls
+        this.walls.getChildren().forEach(wall => {
+            wall.rotation += wall.spinSpeed * delta;
+            wall.setRotation(wall.rotation);
+        });
+    }
+
+    resetBird() {
+        // reset bird to slingshot position
+        this.bird.setStatic(true);
+        this.bird.setPosition(this.slingshotX, this.slingshotY);
+        this.bird.setVelocity(0, 0);
+        this.bird.setRotation(0);
+        this.bird.setAngularVelocity(0);
+        this.bird.stop(); // stop animations
+        this.resetScheduled = false;
     }
 }
