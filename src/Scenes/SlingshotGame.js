@@ -11,6 +11,10 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     create() {
+        // trajectory guide graphics
+        this.trajectoryGfx = this.add.graphics();
+        this.trajectoryGfx.lineStyle(2, 0xffffff, 1);
+        this.trajectoryGfx.setDepth(2);
         //generate placeholder enemy texture
         const gfx = this.add.graphics();
         gfx.fillStyle(0xff0000);
@@ -117,10 +121,17 @@ class SlingshotGame extends Phaser.Scene {
             const limitedY = this.slingshotY + Math.sin(angle) * distance;
 
             this.bird.setPosition(limitedX, limitedY);
+            // draw trajectory guide
+            const vx = (this.slingshotX - limitedX) * 0.35;
+            const vy = (this.slingshotY - limitedY) * 0.35;
+            this.trajectoryGfx.clear();
+            this.drawTrajectory(vx, vy);
         }
     }
 
     release() {
+        // clear trajectory on launch
+        this.trajectoryGfx.clear();
         if (this.isDragging) {
             this.isDragging = false;
 
@@ -165,6 +176,28 @@ class SlingshotGame extends Phaser.Scene {
         this.bird.setRotation(0);
         this.bird.setAngularVelocity(0);
         this.bird.stop(); // stop animations
+        // clear trajectory on reset
+        this.trajectoryGfx.clear();
         this.resetScheduled = false;
+    }
+
+    drawTrajectory(vx, vy) {
+        const startX = this.slingshotX;
+        const startY = this.slingshotY;
+        // approximate gravity from Matter world
+        const worldGravity = this.matter.world.engine.world.gravity.y * this.matter.world.engine.world.gravity.scale;
+        const points = [];
+        const dt = 0.1;
+        for (let t = 0; t < 2; t += dt) {
+            const x = startX + vx * t;
+            const y = startY + vy * t + 0.5 * worldGravity * t * t;
+            points.push({ x, y });
+        }
+        this.trajectoryGfx.beginPath();
+        points.forEach((p, i) => {
+            if (i === 0) this.trajectoryGfx.moveTo(p.x, p.y);
+            else this.trajectoryGfx.lineTo(p.x, p.y);
+        });
+        this.trajectoryGfx.strokePath();
     }
 }
