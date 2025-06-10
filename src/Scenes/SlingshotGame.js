@@ -136,7 +136,7 @@ class SlingshotGame extends Phaser.Scene {
             this.isDragging = false;
 
             // Launch the bird based on drag direction and strength
-            const forceFactor = .35;
+            const forceFactor = .30;
             const dx = this.slingshotX - this.bird.x;
             const dy = this.slingshotY - this.bird.y;
 
@@ -185,14 +185,14 @@ class SlingshotGame extends Phaser.Scene {
         const startX = this.slingshotX;
         const startY = this.slingshotY;
         // approximate gravity from Matter world
-        const worldGravity = this.matter.world.engine.world.gravity.y * this.matter.world.engine.world.gravity.scale;
+        const worldGravity = this.matter.world.engine.world.gravity.y;
         const points = [];
         // interval of points
         const dt = 0.5;
-        for (let t = 0; t < 8; t += dt) {
+        for (let t = 0; t < 10; t += dt) {
             const x = startX + vx * t;
-            // y = start + prev point y + 1/2(Gravity*t^2)  THIS ISNT WORKING RIGHT
-            const y = startY + vy * t + 0.5 * worldGravity * t * t;
+            // y = start + prev point y + (Gravity*t^2)  THIS ISNT WORKING RIGHT
+            const y = startY + vy * t + .5 * worldGravity * t * t;
             points.push({ x, y });
         }
         this.trajectoryGfx.beginPath();
