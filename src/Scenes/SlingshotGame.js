@@ -73,6 +73,11 @@ class SlingshotGame extends Phaser.Scene {
                     window.score += this.birdScore;
                     this.updateScore();
                 }
+                // reset bird on touching red obstacles
+                if ((objA === this.bird && this.redWalls.contains(objB)) ||
+                    (objB === this.bird && this.redWalls.contains(objA))) {
+                    this.resetBird();
+                }
             });
         });
         this.isDragging = false;
@@ -107,6 +112,27 @@ class SlingshotGame extends Phaser.Scene {
             wall.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
             wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
             this.walls.add(wall);
+        }
+
+        // generate placeholder red obstacle texture
+        const redGfx = this.add.graphics();
+        redGfx.fillStyle(0xff0000);
+        redGfx.fillRect(0, 0, 150, 20);
+        redGfx.generateTexture('redWall', 150, 20);
+        redGfx.destroy();
+
+        // spawn red spinning obstacles that reset bird on collision
+        this.redWalls = this.add.group();
+        const redCount = 3;
+        for (let i = 0; i < redCount; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const red = this.matter.add.sprite(x, y, 'redWall', null, { isStatic: true });
+            red.setOrigin(0.5);
+            red.setIgnoreGravity(true);
+            red.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
+            red.spinSpeed = Phaser.Math.FloatBetween(-0.002, 0.002);
+            this.redWalls.add(red);
         }
 
         // Spawn our “enemy” sprites
@@ -243,6 +269,12 @@ class SlingshotGame extends Phaser.Scene {
         this.walls.getChildren().forEach(wall => {
             wall.rotation += wall.spinSpeed * delta;
             wall.setRotation(wall.rotation);
+        });
+
+        // rotate red obstacles
+        this.redWalls.getChildren().forEach(red => {
+            red.rotation += red.spinSpeed * delta;
+            red.setRotation(red.rotation);
         });
     }
     
