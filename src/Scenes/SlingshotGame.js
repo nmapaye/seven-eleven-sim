@@ -80,6 +80,18 @@ class SlingshotGame extends Phaser.Scene {
         wallGfx.generateTexture('wall', 150, 20);
         wallGfx.destroy();
 
+        // generate random static platforms for Matter physics
+        this.platforms = [];
+        const platformCount = 5;
+        for (let i = 0; i < platformCount; i++) {
+            const px = Phaser.Math.Between(300, 1700);
+            const py = Phaser.Math.Between(200, 800);
+            const platform = this.matter.add.sprite(px, py, 'wall', null, { isStatic: true });
+            platform.setOrigin(0.5);
+            platform.setScale(1, 0.5);
+            this.platforms.push(platform);
+        }
+
         // spawn rotating walls
         this.walls = this.add.group();
         const wallCount = 2;
