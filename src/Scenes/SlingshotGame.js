@@ -14,6 +14,8 @@ class SlingshotGame extends Phaser.Scene {
         this.load.image('background', 'assets/Background.png');
 
         this.load.bitmapFont("rocketSquare", "assets/KennyRocketSquare_0.png", "assets/KennyRocketSquare.fnt");
+
+        this.load.spritesheet('enemy', 'assets/BirdSprite.png', {frameWidth: 16, frameHeight: 16});
     }
 
     create() {
@@ -21,12 +23,7 @@ class SlingshotGame extends Phaser.Scene {
         this.trajectoryGfx = this.add.graphics();
         this.trajectoryGfx.lineStyle(2, 0xffffff, 1);
         this.trajectoryGfx.setDepth(2);
-        //generate placeholder enemy texture
-        const gfx = this.add.graphics();
-        gfx.fillStyle(0xff0000);
-        gfx.fillCircle(16, 16, 16);
-        gfx.generateTexture('enemy', 32, 32);
-        gfx.destroy();
+
         // Anims for cat
         this.anims.create({
             key: 'cat-run',
@@ -75,18 +72,7 @@ class SlingshotGame extends Phaser.Scene {
             });
         });
         this.isDragging = false;
-        //spawn static placeholder enemies
-        this.enemies = this.add.group();
-        const enemyCount = 10;
-        for (let i = 0; i < enemyCount; i++) {
-            const x = Phaser.Math.Between(400, 1500);
-            const y = Phaser.Math.Between(100, 800);
-            const enemy = this.matter.add.sprite(x, y, 'enemy', null, { isStatic: true });
-            enemy.setCircle(16);
-            enemy.setIgnoreGravity(true);
-            this.enemies.add(enemy);
-        }
-
+        
         // generate placeholder wall texture
         const wallGfx = this.add.graphics();
         wallGfx.fillStyle(0x888888);
@@ -106,6 +92,29 @@ class SlingshotGame extends Phaser.Scene {
             wall.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
             wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
             this.walls.add(wall);
+        }
+
+        // Spawn our “enemy” sprites
+        this.enemies = this.add.group();
+        // Gave them a simple flapping animation
+        this.anims.create({
+          key: 'enemy-flap',
+         frames: this.anims.generateFrameNumbers('enemy', { start: 8, end: 15 }),
+          frameRate: 6,
+          repeat: -1
+        });
+
+        const enemyNumber = 10;
+
+        for (let i = 0; i < enemyNumber; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const e = this.matter.add.sprite(x, y, 'enemy', 0, { isStatic: true });
+            e.setScale(3);                 // scale up from 16×16 if you like
+            e.setCircle(8 * e.scaleX);    // match collision to sprite size
+            e.setIgnoreGravity(true);
+            e.play('enemy-flap');
+            this.enemies.add(e);
         }
 
         this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score);
