@@ -16,6 +16,8 @@ class SlingshotGame extends Phaser.Scene {
         this.load.bitmapFont("rocketSquare", "assets/KennyRocketSquare_0.png", "assets/KennyRocketSquare.fnt");
 
         this.load.spritesheet('enemy', 'assets/BirdSprite.png', {frameWidth: 16, frameHeight: 16});
+
+        this.load.image('sling', 'assets/slingshot.png');
     }
 
     create() {
@@ -41,6 +43,10 @@ class SlingshotGame extends Phaser.Scene {
         // Starting point for slingshot
         this.slingshotX = 200;
         this.slingshotY = 450;
+        
+        // Create Sling
+        this.sling = this.add.sprite(this.slingshotX-40, this.slingshotY, 'sling');
+        this.sling.setScale(0.25)
         
         // Create bird at the top layer
         this.bird = this.matter.add.sprite(this.slingshotX, this.slingshotY, 'bird');
