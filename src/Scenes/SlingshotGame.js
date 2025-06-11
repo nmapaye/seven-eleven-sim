@@ -18,6 +18,9 @@ class SlingshotGame extends Phaser.Scene {
         this.load.spritesheet('enemy', 'assets/BirdSprite.png', {frameWidth: 16, frameHeight: 16});
 
         this.load.image('sling', 'assets/slingshot.png');
+
+        this.load.spritesheet('leaves',' assets/Tiles.png', {frameWidth: 124, frameHeight: 32});
+        this.load.spritesheet('trees',' assets/Tiles.png', {frameWidth: 32, frameHeight: 32});
     }
 
     create() {
@@ -43,7 +46,15 @@ class SlingshotGame extends Phaser.Scene {
         // Starting point for slingshot
         this.slingshotX = 200;
         this.slingshotY = 450;
-        
+
+        // Scuffed Tree LOL
+        const topLog = this.add.sprite(this.slingshotX, this.slingshotY+190, 'trees', 17).setScale(4);
+        const middleLog1 = this.add.sprite(this.slingshotX-5, this.slingshotY+250, 'trees', 29).setScale(4);
+        const middleLog2 = this.add.sprite(this.slingshotX-10, this.slingshotY+350, 'trees', 41).setScale(4);
+        const bottomLog = this.add.sprite(this.slingshotX-5, this.slingshotY+400, 'trees', 41).setScale(4);
+        const leaf1 = this.add.sprite(this.slingshotX-150, this.slingshotY+30, 'leaves', 20).setScale(5);
+        const leaf2 = this.add.sprite(this.slingshotX-150, this.slingshotY+190, 'leaves', 20).setFlipY(true).setScale(5);
+
         // Create Sling
         this.sling = this.add.sprite(this.slingshotX-40, this.slingshotY, 'sling');
         this.sling.setScale(0.25)
