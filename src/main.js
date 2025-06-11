@@ -12,8 +12,9 @@ const config = {
             debug: true
         }
     },
-    scene: [SlingshotGame,]
+    scene: [SlingshotGame]
 };
 
+var score = 0;
 
 const game = new Phaser.Game(config);

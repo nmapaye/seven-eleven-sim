@@ -1,13 +1,19 @@
 class SlingshotGame extends Phaser.Scene {
     constructor() {
         super("SlingshotGame");
+        this.birdScore = 500;
+
+        this.my = {text: {}};
+
     }
 
     preload() {
         // Cat Sprite Sheet
         this.load.spritesheet('bird', 'assets/2_Cat_Run-Sheet.png', {frameWidth: 32, frameHight: 32}); // Use your own image
         // Background Layer 0
-        this.load.image('background', 'assets/Background.png'); // Optional
+        this.load.image('background', 'assets/Background.png');
+
+        this.load.bitmapFont("rocketSquare", "assets/KennyRocketSquare_0.png", "assets/KennyRocketSquare.fnt");
     }
 
     create() {
@@ -59,8 +65,12 @@ class SlingshotGame extends Phaser.Scene {
                 const objB = bodyB.gameObject;
                 if (objA === this.bird && this.enemies.contains(objB)) {
                     objB.destroy();
+                    window.score += this.birdScore;
+                    this.updateScore();
                 } else if (objB === this.bird && this.enemies.contains(objA)) {
                     objA.destroy();
+                    window.score += this.birdScore;
+                    this.updateScore();
                 }
             });
         });
@@ -97,6 +107,8 @@ class SlingshotGame extends Phaser.Scene {
             wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
             this.walls.add(wall);
         }
+
+        this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score);
 
         // prepare for bird reset
         this.resetScheduled = false;
@@ -147,26 +159,6 @@ class SlingshotGame extends Phaser.Scene {
             this.bird.play('cat-run', true);
         }
     }
-    update(time, delta){
-        // Slight Parallax/Scrolling Background
-        this.bg.tilePositionX += 0.02 * delta;
-
-        // check if bird left screen and schedule reset
-        if (!this.resetScheduled && !this.bird.body.isStatic) {
-            const width = this.scale.width;
-            const height = this.scale.height;
-            if (this.bird.x < 0 || this.bird.x > width || this.bird.y < 0 || this.bird.y > height) {
-                this.resetScheduled = true;
-                this.time.delayedCall(3000, this.resetBird, [], this);
-            }
-        }
-
-        // rotate walls
-        this.walls.getChildren().forEach(wall => {
-            wall.rotation += wall.spinSpeed * delta;
-            wall.setRotation(wall.rotation);
-        });
-    }
 
     resetBird() {
         // reset bird to slingshot position
@@ -191,7 +183,7 @@ class SlingshotGame extends Phaser.Scene {
         const dt = 0.5;
         for (let t = 0; t < 10; t += dt) {
             const x = startX + vx * t;
-            // y = start + prev point y + (Gravity*t^2)  THIS ISNT WORKING RIGHT
+            // y = start + prev point y + (Gravity*t^2)
             const y = startY + vy * t + .5 * worldGravity * t * t;
             points.push({ x, y });
         }
@@ -202,4 +194,32 @@ class SlingshotGame extends Phaser.Scene {
         });
         this.trajectoryGfx.strokePath();
     }
+
+    // Update Score UI to reflect window.score
+    updateScore(){
+        let my = this.my;
+        my.text.score.setText("Score\n" + window.score);
+    }
+
+    update(time, delta){
+        // Slight Parallax/Scrolling Background
+        this.bg.tilePositionX += 0.02 * delta;
+
+        // check if bird left screen and schedule reset
+        if (!this.resetScheduled && !this.bird.body.isStatic) {
+            const width = this.scale.width;
+            const height = this.scale.height;
+            if (this.bird.x < 0 || this.bird.x > width || this.bird.y < 0 || this.bird.y > height) {
+                this.resetScheduled = true;
+                this.time.delayedCall(3000, this.resetBird, [], this);
+            }
+        }
+
+        // rotate walls
+        this.walls.getChildren().forEach(wall => {
+            wall.rotation += wall.spinSpeed * delta;
+            wall.setRotation(wall.rotation);
+        });
+    }
+    
 }
