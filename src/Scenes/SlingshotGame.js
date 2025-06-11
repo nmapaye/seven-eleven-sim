@@ -50,11 +50,18 @@ class SlingshotGame extends Phaser.Scene {
         this.bird.setOrigin(0.6);
         this.bird.setDepth(1);
 
+        //configure camera to follow the bird (yes it falls downwards)
+        const cam = this.cameras.main;
+        //set camera bounds to match world size (assumes world size 2000×1000)
+        cam.setBounds(0, 0, 2000, 1000);
+        // start following the bird with smoothness (lerp effect)
+        cam.startFollow(this.bird, true, 0.1, 0.1);
+
         // Input tracking
         this.input.on('pointerdown', this.startDrag, this);
         this.input.on('pointermove', this.doDrag, this);
         this.input.on('pointerup', this.release, this);
-        // respawn bird on R key press
+        //respawn bird on R key press
         this.input.keyboard.on('keydown-R', () => {
             this.resetBird();
         });
