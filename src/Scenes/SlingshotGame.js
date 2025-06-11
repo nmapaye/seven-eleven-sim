@@ -65,6 +65,10 @@ class SlingshotGame extends Phaser.Scene {
         this.input.keyboard.on('keydown-R', () => {
             this.resetBird();
         });
+        // regenerate level on L key press
+        this.input.keyboard.on('keydown-L', () => {
+            this.regenerateLevel();
+        });
         //destroy enemies on contact with the bird
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(pair => {
@@ -283,6 +287,65 @@ class SlingshotGame extends Phaser.Scene {
             red.rotation += red.spinSpeed * delta;
             red.setRotation(red.rotation);
         });
+    }
+    
+    regenerateLevel() {
+        // destroy existing dynamic objects
+        this.platforms.forEach(p => p.destroy());
+        this.platforms = [];
+        this.walls.clear(true, true);
+        this.redWalls.clear(true, true);
+        this.enemies.clear(true, true);
+
+        // regenerate platforms
+        const platformCount = 5;
+        for (let i = 0; i < platformCount; i++) {
+            const px = Phaser.Math.Between(300, 1700);
+            const py = Phaser.Math.Between(200, 800);
+            const platform = this.matter.add.sprite(px, py, 'wall', null, { isStatic: true });
+            platform.setOrigin(0.5);
+            platform.setScale(1, 0.5);
+            this.platforms.push(platform);
+        }
+
+        // spawn rotating walls
+        const wallCount = 2;
+        for (let i = 0; i < wallCount; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const wall = this.matter.add.sprite(x, y, 'wall', null, { isStatic: true });
+            wall.setOrigin(0.5);
+            wall.setIgnoreGravity(true);
+            wall.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
+            wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
+            this.walls.add(wall);
+        }
+
+        // spawn red spinning obstacles
+        const redCount = 3;
+        for (let i = 0; i < redCount; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const red = this.matter.add.sprite(x, y, 'redWall', null, { isStatic: true });
+            red.setOrigin(0.5);
+            red.setIgnoreGravity(true);
+            red.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
+            red.spinSpeed = Phaser.Math.FloatBetween(-0.002, 0.002);
+            this.redWalls.add(red);
+        }
+
+        // spawn enemies
+        const enemyNumber = 10;
+        for (let i = 0; i < enemyNumber; i++) {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+            const e = this.matter.add.sprite(x, y, 'enemy', 0, { isStatic: true });
+            e.setScale(3);
+            e.setCircle(8 * e.scaleX);
+            e.setIgnoreGravity(true);
+            e.play('enemy-flap');
+            this.enemies.add(e);
+        }
     }
     
 }
