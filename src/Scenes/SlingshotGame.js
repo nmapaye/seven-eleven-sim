@@ -54,6 +54,10 @@ class SlingshotGame extends Phaser.Scene {
         this.input.on('pointerdown', this.startDrag, this);
         this.input.on('pointermove', this.doDrag, this);
         this.input.on('pointerup', this.release, this);
+        // respawn bird on R key press
+        this.input.keyboard.on('keydown-R', () => {
+            this.resetBird();
+        });
         //destroy enemies on contact with the bird
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(pair => {
@@ -73,14 +77,13 @@ class SlingshotGame extends Phaser.Scene {
         });
         this.isDragging = false;
         
-        // generate placeholder wall texture
+        //generate placeholder wall texture
         const wallGfx = this.add.graphics();
         wallGfx.fillStyle(0x888888);
         wallGfx.fillRect(0, 0, 150, 20);
         wallGfx.generateTexture('wall', 150, 20);
         wallGfx.destroy();
-
-        // generate random static platforms for Matter physics
+        //generate random static platforms for Matter physics
         this.platforms = [];
         const platformCount = 5;
         for (let i = 0; i < platformCount; i++) {
@@ -92,7 +95,7 @@ class SlingshotGame extends Phaser.Scene {
             this.platforms.push(platform);
         }
 
-        // spawn rotating walls
+        //spawn rotating walls
         this.walls = this.add.group();
         const wallCount = 2;
         for (let i = 0; i < wallCount; i++) {
@@ -122,8 +125,8 @@ class SlingshotGame extends Phaser.Scene {
             const x = Phaser.Math.Between(400, 1500);
             const y = Phaser.Math.Between(100, 800);
             const e = this.matter.add.sprite(x, y, 'enemy', 0, { isStatic: true });
-            e.setScale(3);                 // scale up from 16×16 if you like
-            e.setCircle(8 * e.scaleX);    // match collision to sprite size
+            e.setScale(3);                 //scale up from 16×16 if you like
+            e.setCircle(8 * e.scaleX);    //match collision to sprite size
             e.setIgnoreGravity(true);
             e.play('enemy-flap');
             this.enemies.add(e);
@@ -131,7 +134,7 @@ class SlingshotGame extends Phaser.Scene {
 
         this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score);
 
-        // prepare for bird reset
+        //prepare for birdie reset
         this.resetScheduled = false;
     }
 
@@ -154,7 +157,7 @@ class SlingshotGame extends Phaser.Scene {
             const limitedY = this.slingshotY + Math.sin(angle) * distance;
 
             this.bird.setPosition(limitedX, limitedY);
-            // draw trajectory guide
+            //draw trajectory guide
             const vx = (this.slingshotX - limitedX) * 0.35;
             const vy = (this.slingshotY - limitedY) * 0.35;
             this.trajectoryGfx.clear();
@@ -163,7 +166,7 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     release() {
-        // clear trajectory on launch
+        //clear trajectory on launch
         this.trajectoryGfx.clear();
         if (this.isDragging) {
             this.isDragging = false;
@@ -182,14 +185,14 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     resetBird() {
-        // reset bird to slingshot position
+        //reset bird to slingshot position
         this.bird.setStatic(true);
         this.bird.setPosition(this.slingshotX, this.slingshotY);
         this.bird.setVelocity(0, 0);
         this.bird.setRotation(0);
         this.bird.setAngularVelocity(0);
-        this.bird.stop(); // stop animations
-        // clear trajectory on reset
+        this.bird.stop(); 
+        //clear trajectory on reset
         this.trajectoryGfx.clear();
         this.resetScheduled = false;
     }
@@ -197,14 +200,14 @@ class SlingshotGame extends Phaser.Scene {
     drawTrajectory(vx, vy) {
         const startX = this.slingshotX;
         const startY = this.slingshotY;
-        // approximate gravity from Matter world
+        //approximate gravity from Matter world
         const worldGravity = this.matter.world.engine.world.gravity.y;
         const points = [];
-        // interval of points
+        //interval of points la dee da
         const dt = 0.5;
         for (let t = 0; t < 10; t += dt) {
             const x = startX + vx * t;
-            // y = start + prev point y + (Gravity*t^2)
+            //y = start + prev point y + (Gravity*t^2)
             const y = startY + vy * t + .5 * worldGravity * t * t;
             points.push({ x, y });
         }
@@ -226,7 +229,7 @@ class SlingshotGame extends Phaser.Scene {
         // Slight Parallax/Scrolling Background
         this.bg.tilePositionX += 0.02 * delta;
 
-        // check if bird left screen and schedule reset
+        //check if bird left screen and schedule reset
         if (!this.resetScheduled && !this.bird.body.isStatic) {
             const width = this.scale.width;
             const height = this.scale.height;
@@ -236,7 +239,7 @@ class SlingshotGame extends Phaser.Scene {
             }
         }
 
-        // rotate walls
+        //rotate walls
         this.walls.getChildren().forEach(wall => {
             wall.rotation += wall.spinSpeed * delta;
             wall.setRotation(wall.rotation);
