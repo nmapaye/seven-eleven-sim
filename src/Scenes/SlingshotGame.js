@@ -26,7 +26,10 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     create() {
-        // Level designs
+        ///
+        /// Level designs
+        ///
+        
         this.levelDefs = [
             {
                 // Level 1: simple ground platforms + one spinning wall + 3 enemies
@@ -86,6 +89,10 @@ class SlingshotGame extends Phaser.Scene {
                 ]
             }
             ];
+            
+        ///
+        /// Graphics
+        ///
 
         // trajectory guide graphics
         this.trajectoryGfx = this.add.graphics();
@@ -138,6 +145,10 @@ class SlingshotGame extends Phaser.Scene {
         this.bird.setStatic(true); // Don’t move until released
         this.bird.setOrigin(0.6);
         this.bird.setDepth(1);
+        
+        ///
+        /// Camera
+        ///
 
         //configure camera to follow the bird (yes it falls downwards)
         const cam = this.cameras.main;
@@ -145,6 +156,10 @@ class SlingshotGame extends Phaser.Scene {
         cam.setBounds(0, 0, 2000, 1000);
         // start following the bird with smoothness (lerp effect)
         cam.startFollow(this.bird, true, 0.1, 0.1);
+
+        ///
+        /// Input Handling & Collisions
+        ///
 
         // Input tracking
         this.input.on('pointerdown', this.startDrag, this);
@@ -155,7 +170,7 @@ class SlingshotGame extends Phaser.Scene {
             this.resetBird();
         });
 
-                //destroy enemies on contact with the bird
+        //destroy enemies on contact with the bird
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(pair => {
                 const { bodyA, bodyB } = pair;
@@ -178,6 +193,10 @@ class SlingshotGame extends Phaser.Scene {
             });
         });
         this.isDragging = false;
+
+        ///
+        /// Loading levels
+        ///
   
         // initialize groups
         this.platforms = [];
@@ -243,7 +262,9 @@ class SlingshotGame extends Phaser.Scene {
             this.enemies.add(enemy);
         });
 
-
+        ///
+        /// Text/Score
+        ///
 
         this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score).setScale(2);
         this.my.text.level = this.add.bitmapText(50, 0, "rocketSquare", "Level: " + (this.currentLevel + 1)).setScale(2);
