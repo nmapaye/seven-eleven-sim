@@ -5,6 +5,13 @@ class SlingshotGame extends Phaser.Scene {
 
         this.my = {text: {}};
 
+        // Ammo per level
+        this.maxAmmo = 3;
+        this.ammo = this.maxAmmo;
+
+        // container that will hold our pip sprites/circles
+        this.ammoPips = null;
+
     }
 
     
@@ -145,6 +152,12 @@ class SlingshotGame extends Phaser.Scene {
         this.bird.setStatic(true); // Don’t move until released
         this.bird.setOrigin(0.6);
         this.bird.setDepth(1);
+
+        // A container to hold our pip icons
+        this.ammoPips = this.add.container(this.slingshotX + 50, this.slingshotY);
+
+        // draw initial pips
+        this.drawPips();
         
         ///
         /// Camera
@@ -262,6 +275,8 @@ class SlingshotGame extends Phaser.Scene {
                 .setIgnoreGravity(true)
                 .play('enemy-flap');
             this.enemies.add(enemy);
+
+        
         });
 
         ///
@@ -273,6 +288,19 @@ class SlingshotGame extends Phaser.Scene {
 
         //prepare for birdie reset
         this.resetScheduled = false;
+
+        ///
+        /// Reset ammo
+        ///
+
+        this.ammo = this.maxAmmo;
+        this.drawPips();
+
+        // re-enable dragging
+        this.input.on('pointerdown', this.startDrag, this);
+        this.input.on('pointermove', this.doDrag, this);
+        this.input.on('pointerup', this.release, this);
+        
     }
 
     startDrag(pointer) {
@@ -318,6 +346,16 @@ class SlingshotGame extends Phaser.Scene {
 
             // When cat is launched, play the cat-run animation
             this.bird.play('cat-run', true);
+
+            this.ammo = Phaser.Math.Clamp(this.ammo - 1, 0, this.maxAmmo);
+            this.drawPips();
+        }
+        
+        // Disable further dragging if out of ammo
+        if (this.ammo === 0) {
+                this.input.off('pointerdown', this.startDrag, this);
+                this.input.off('pointermove', this.doDrag, this);
+                this.input.off('pointerup', this.release, this);
         }
     }
 
@@ -332,6 +370,7 @@ class SlingshotGame extends Phaser.Scene {
         //clear trajectory on reset
         this.trajectoryGfx.clear();
         this.resetScheduled = false;
+        
     }
 
     drawTrajectory(vx, vy) {
@@ -460,6 +499,7 @@ class SlingshotGame extends Phaser.Scene {
             enemy.setAngularVelocity(0);
         });
     }
+    
     checkForLevelComplete() {
         // group.getLength() will be zero when no children remain
         if (this.enemies.getLength() === 0) {
@@ -468,6 +508,18 @@ class SlingshotGame extends Phaser.Scene {
             this.currentLevel = (this.currentLevel + 1) % this.levelDefs.length;
             this.loadLevel(this.currentLevel);
             });
+        }
+    }
+    drawPips() {
+        // clear out any existing
+        this.ammoPips.removeAll(true);
+
+        const spacing = 16;    // px between pips
+        for (let i = 0; i < this.ammo; i++) {
+            // for a quick circle pip:
+            const pip = this.add.circle(i * spacing, 0, 6, 0xffffff)
+            .setStrokeStyle(2, 0x000000);
+            this.ammoPips.add(pip);
         }
     }
     
