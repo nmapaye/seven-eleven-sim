@@ -246,6 +246,7 @@ class SlingshotGame extends Phaser.Scene {
 
 
         this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score).setScale(2);
+        this.my.text.level = this.add.bitmapText(50, 0, "rocketSquare", "Level: " + (this.currentLevel + 1)).setScale(2);
 
         //prepare for birdie reset
         this.resetScheduled = false;
