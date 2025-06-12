@@ -436,7 +436,7 @@ class SlingshotGame extends Phaser.Scene {
                 this.resetScheduled = true;
                 this.time.delayedCall(3000, this.resetBird, [], this);
             }
-            else if (this.bird.body.velocity.x === 0 && this.bird.body.velocity.y === 0){
+            else if (this.bird.body.velocity.x < .1 && this.bird.body.velocity.y < .1){
                 this.resetScheduled = true;
                 this.time.delayedCall(3000, this.resetBird, [], this);
         }
