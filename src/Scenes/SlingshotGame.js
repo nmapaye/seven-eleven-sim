@@ -29,7 +29,7 @@ class SlingshotGame extends Phaser.Scene {
         ///
         /// Level designs
         ///
-        
+
         this.levelDefs = [
             {
                 // Level 1: simple ground platforms + one spinning wall + 3 enemies
@@ -180,10 +180,12 @@ class SlingshotGame extends Phaser.Scene {
                     objB.destroy();
                     window.score += this.birdScore;
                     this.updateScore();
+                    this.checkForLevelComplete();
                 } else if (objB === this.bird && this.enemies.contains(objA)) {
                     objA.destroy();
                     window.score += this.birdScore;
                     this.updateScore();
+                    this.checkForLevelComplete();
                 }
                 // reset bird on touching red obstacles
                 if ((objA === this.bird && this.redWalls.contains(objB)) ||
@@ -457,6 +459,16 @@ class SlingshotGame extends Phaser.Scene {
             enemy.setVelocity(0, 0);
             enemy.setAngularVelocity(0);
         });
+    }
+    checkForLevelComplete() {
+        // group.getLength() will be zero when no children remain
+        if (this.enemies.getLength() === 0) {
+            this.time.delayedCall(500, () => {
+            // advance and wrap around if you like
+            this.currentLevel = (this.currentLevel + 1) % this.levelDefs.length;
+            this.loadLevel(this.currentLevel);
+            });
+        }
     }
     
 }
