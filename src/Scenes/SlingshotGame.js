@@ -291,6 +291,8 @@ class SlingshotGame extends Phaser.Scene {
 
         //prepare for birdie reset
         this.resetScheduled = false;
+        // flag to schedule game over
+        this.gameOverScheduled = false;
 
         ///
         /// Reset ammo
@@ -353,21 +355,7 @@ class SlingshotGame extends Phaser.Scene {
             this.ammo = Phaser.Math.Clamp(this.ammo - 1, 0, this.maxAmmo);
             this.drawPips();
         }
-        
-        // Disable further dragging if out of ammo
-        if (this.ammo === 0) {
-                this.input.off('pointerdown', this.startDrag, this);
-                this.input.off('pointermove', this.doDrag, this);
-                this.input.off('pointerup', this.release, this);
-                
-                this.time.delayedCall(1000, () => {
-                    this.scene.start("GameOverScene", {
-                        score: window.score,
-                        outOfAmmo: true,
-                        completed: false
-                    });
-                });
-        }
+        // (GameOverScene scheduling handled in update when bird stops moving)
     }
 
     resetBird() {
@@ -437,6 +425,24 @@ class SlingshotGame extends Phaser.Scene {
             red.rotation += red.spinSpeed * delta;
             red.setRotation(red.rotation);
         });
+
+        // trigger game over when out of ammo and cat has stopped moving
+        if (!this.gameOverScheduled && this.ammo === 0 
+            && this.bird.body.velocity.x === 0 && this.bird.body.velocity.y === 0) {
+            this.gameOverScheduled = true;
+            // disable input
+            this.input.off('pointerdown', this.startDrag, this);
+            this.input.off('pointermove', this.doDrag, this);
+            this.input.off('pointerup', this.release, this);
+            // schedule transition
+            this.time.delayedCall(1000, () => {
+                this.scene.start("GameOverScene", {
+                    score: window.score,
+                    outOfAmmo: true,
+                    completed: false
+                });
+            });
+        }
     }
     
     regenerateLevel() {
