@@ -36,7 +36,7 @@ class CreditsScene extends Phaser.Scene {
 
     // Go back to a “menu” or to the game on keypress
     this.input.keyboard.once("keydown-M", () => {
-      this.scene.start("SlingshotGame");
+      this.scene.start("TitleScene");
     });
   }
 }

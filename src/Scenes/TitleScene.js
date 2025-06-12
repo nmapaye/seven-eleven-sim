@@ -1,8 +1,6 @@
-import Phaser from 'phaser';
-
-export default class TitleScene extends Phaser.Scene {
+class TitleScene extends Phaser.Scene {
   constructor() {
-    super('TitleScene');
+    super("TitleScene");
   }
 
   create() {
@@ -23,7 +21,7 @@ export default class TitleScene extends Phaser.Scene {
       }
     ).setOrigin(0.5);
 
-    // Subtitle or tagline (optional)
+    // Subtitle 
     this.add.text(
       width / 2,
       height / 2,

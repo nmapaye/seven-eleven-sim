@@ -9,10 +9,10 @@ const config = {
         default: 'matter',
         matter: {
             gravity: { y: 1},
-            debug: true // Enable/Disable hitboxes
+            debug: false // Enable/Disable hitboxes
         },
     },
-    scene: [SlingshotGame, GameOverScene, CreditsScene,]
+    scene: [TitleScene, SlingshotGame, GameOverScene, CreditsScene ]
 };
 
 var score = 0;
