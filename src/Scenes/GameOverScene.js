@@ -76,6 +76,7 @@ class GameOverScene extends Phaser.Scene {
         .setOrigin(0.5);
 
         this.input.keyboard.once("keydown-C", () => {
+        this.sound.play('sndRestart');
         this.scene.start("CreditsScene");
         });
 
