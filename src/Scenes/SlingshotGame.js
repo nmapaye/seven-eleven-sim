@@ -242,6 +242,10 @@ class SlingshotGame extends Phaser.Scene {
         // clear & spawn everything from levelDefs
         loadLevel(idx) {
         // clear existing
+        // kill tweens for previous enemies
+        this.enemies.getChildren().forEach(enemy => {
+            this.tweens.killTweensOf(enemy);
+        });
         this.platforms.forEach(p => p.destroy());
         this.platforms = [];
         this.walls.clear(true, true);
@@ -285,8 +289,16 @@ class SlingshotGame extends Phaser.Scene {
                 .setIgnoreGravity(true)
                 .play('enemy-flap');
             this.enemies.add(enemy);
-
-        
+            // make this enemy float up and down continuously
+            this.tweens.add({
+                targets: enemy.body.position,
+                y: enemy.body.position.y - 20,
+                duration: 1000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut',
+                delay: Phaser.Math.Between(0, 1000)
+            });
         });
 
         ///
@@ -457,6 +469,10 @@ class SlingshotGame extends Phaser.Scene {
     }
     
     regenerateLevel() {
+        // kill tweens for previous enemies
+        this.enemies.getChildren().forEach(enemy => {
+            this.tweens.killTweensOf(enemy);
+        });
         // destroy existing dynamic objects
         this.platforms.forEach(p => p.destroy());
         this.platforms = [];
