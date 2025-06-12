@@ -68,5 +68,17 @@ class GameOverScene extends Phaser.Scene {
         this.scene.start("SlingshotGame");
         });
     });
+    this.add
+       .text(width/2, height/2 + 160, "Press C for Credits", {
+        fontSize: "18px",
+        color: "#ffffff",
+       })
+        .setOrigin(0.5);
+
+        this.input.keyboard.once("keydown-C", () => {
+        this.scene.start("CreditsScene");
+        });
+
+    
   }
 }

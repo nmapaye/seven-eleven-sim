@@ -12,7 +12,7 @@ const config = {
             debug: true // Enable/Disable hitboxes
         },
     },
-    scene: [SlingshotGame, GameOverScene]
+    scene: [SlingshotGame, GameOverScene, CreditsScene]
 };
 
 var score = 0;
