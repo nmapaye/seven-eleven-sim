@@ -27,7 +27,11 @@ class SlingshotGame extends Phaser.Scene {
         this.load.spritesheet('enemy', 'assets/BirdSprite.png', {frameWidth: 16, frameHeight: 16});
 
         this.load.image('sling', 'assets/slingshot.png');
-
+        
+        this.load.image('wall', 'assets/woodenplatform.png');
+        this.load.spritesheet('redWall', 'assets/SawBladeShuriken.png', {frameWidth: 22, frameHeight: 22
+        });
+        
         this.load.spritesheet('leaves',' assets/Tiles.png', {frameWidth: 124, frameHeight: 32});
         this.load.spritesheet('trees',' assets/Tiles.png', {frameWidth: 32, frameHeight: 32});
 
@@ -273,7 +277,7 @@ class SlingshotGame extends Phaser.Scene {
 
         // red walls
         def.redWalls.forEach(r => {
-            const red = this.matter.add.sprite(r.x, r.y, 'redWall', null, { isStatic: true });
+            const red = this.matter.add.sprite(r.x, r.y, 'redWall', null, { isStatic: true }).setScale(2);
             red.setOrigin(0.5);
             red.setIgnoreGravity(true);
             red.rotation = r.angle;
