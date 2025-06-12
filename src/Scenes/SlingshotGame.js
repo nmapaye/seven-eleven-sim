@@ -34,6 +34,7 @@ class SlingshotGame extends Phaser.Scene {
         // Audio
         this.load.audio('sndLaunch', 'assets/jump.wav');
         this.load.audio('sndEnemyHit', 'assets/animalCurious.wav');
+        this.load.audio('respawn', 'assets/respawn.wav');
     }
 
     create() {
@@ -378,6 +379,7 @@ class SlingshotGame extends Phaser.Scene {
         //clear trajectory on reset
         this.trajectoryGfx.clear();
         this.resetScheduled = false;
+        this.sound.play('respawn');
         
     }
 
