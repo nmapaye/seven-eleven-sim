@@ -10,6 +10,10 @@ class GameOverScene extends Phaser.Scene {
     this.completed = data.completed || false;
   }
 
+  preload(){
+    this.load.audio('sndRestart', 'assets/menuSelect.wav');
+  }
+
   create() {
     const { width, height } = this.sys.game.canvas;
     const title = this.completed ? "You Win!" : "Game Over";
@@ -57,8 +61,12 @@ class GameOverScene extends Phaser.Scene {
 
     // listen for R
     this.input.keyboard.once("keydown-R", () => {
-      window.score = 0;
-      this.scene.start("SlingshotGame");
+        this.sound.play('sndRestart');
+        // give the SFX a moment to start before switching scenes
+        this.time.delayedCall(200, () => {
+        window.score = 0;
+        this.scene.start("SlingshotGame");
+        });
     });
   }
 }

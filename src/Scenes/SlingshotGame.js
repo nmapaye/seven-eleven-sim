@@ -30,6 +30,10 @@ class SlingshotGame extends Phaser.Scene {
 
         this.load.spritesheet('leaves',' assets/Tiles.png', {frameWidth: 124, frameHeight: 32});
         this.load.spritesheet('trees',' assets/Tiles.png', {frameWidth: 32, frameHeight: 32});
+
+        // Audio
+        this.load.audio('sndLaunch', 'assets/jump.wav');
+        this.load.audio('sndEnemyHit', 'assets/animalCurious.wav');
     }
 
     create() {
@@ -193,11 +197,13 @@ class SlingshotGame extends Phaser.Scene {
                 const objA = bodyA.gameObject;
                 const objB = bodyB.gameObject;
                 if (objA === this.bird && this.enemies.contains(objB)) {
+                    this.sound.play('sndEnemyHit');
                     objB.destroy();
                     window.score += this.birdScore;
                     this.updateScore();
                     this.checkForLevelComplete();
                 } else if (objB === this.bird && this.enemies.contains(objA)) {
+                    this.sound.play('sndEnemyHit');
                     objA.destroy();
                     window.score += this.birdScore;
                     this.updateScore();
@@ -348,6 +354,9 @@ class SlingshotGame extends Phaser.Scene {
 
             this.bird.setStatic(false); // Allow it to move
             this.bird.setVelocity(dx * forceFactor, dy * forceFactor);
+            
+            // Play Audio for launch
+            this.sound.play('sndLaunch');
 
             // When cat is launched, play the cat-run animation
             this.bird.play('cat-run', true);
