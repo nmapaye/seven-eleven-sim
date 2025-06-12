@@ -51,7 +51,8 @@ class SlingshotGame extends Phaser.Scene {
         const topLog = this.add.sprite(this.slingshotX, this.slingshotY+190, 'trees', 17).setScale(4);
         const middleLog1 = this.add.sprite(this.slingshotX-5, this.slingshotY+250, 'trees', 29).setScale(4);
         const middleLog2 = this.add.sprite(this.slingshotX-10, this.slingshotY+350, 'trees', 41).setScale(4);
-        const bottomLog = this.add.sprite(this.slingshotX-5, this.slingshotY+400, 'trees', 41).setScale(4);
+        const middleLog3 = this.add.sprite(this.slingshotX-5, this.slingshotY+400, 'trees', 41).setScale(4);
+        const bottomlog = this.add.sprite(this.slingshotX-5, this.slingshotY+500, 'trees', 41).setScale(4);
         const leaf1 = this.add.sprite(this.slingshotX-150, this.slingshotY+30, 'leaves', 20).setScale(5);
         const leaf2 = this.add.sprite(this.slingshotX-150, this.slingshotY+190, 'leaves', 20).setFlipY(true).setScale(5);
 
