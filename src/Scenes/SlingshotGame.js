@@ -6,7 +6,7 @@ class SlingshotGame extends Phaser.Scene {
         this.my = {text: {}};
 
         // Ammo per level
-        this.maxAmmo = 3;
+        this.maxAmmo = 5;
         this.ammo = this.maxAmmo;
 
         // container that will hold our pip sprites/circles
