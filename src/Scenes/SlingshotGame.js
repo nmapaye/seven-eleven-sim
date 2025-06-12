@@ -85,7 +85,8 @@ class SlingshotGame extends Phaser.Scene {
         });
         // regenerate level on L key press
         this.input.keyboard.on('keydown-L', () => {
-            this.regenerateLevel();
+            // this.regenerateLevel(); 
+            this.shuffleEnemies();
         });
         //destroy enemies on contact with the bird
         this.matter.world.on('collisionstart', (event) => {
@@ -187,7 +188,7 @@ class SlingshotGame extends Phaser.Scene {
             this.enemies.add(e);
         }
 
-        this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score);
+        this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score).setScale(2);
 
         //prepare for birdie reset
         this.resetScheduled = false;
@@ -364,6 +365,19 @@ class SlingshotGame extends Phaser.Scene {
             e.play('enemy-flap');
             this.enemies.add(e);
         }
+    }
+    
+    shuffleEnemies() {
+        // pick new random positions for each enemy still in the group
+        this.enemies.getChildren().forEach(enemy => {
+            const x = Phaser.Math.Between(400, 1500);
+            const y = Phaser.Math.Between(100, 800);
+
+            // Matter sprites: reposition both the GameObject and its physics body
+            enemy.setPosition(x, y);
+            enemy.setVelocity(0, 0);
+            enemy.setAngularVelocity(0);
+        });
     }
     
 }
