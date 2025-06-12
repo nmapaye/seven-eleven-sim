@@ -96,7 +96,10 @@ class SlingshotGame extends Phaser.Scene {
                 ]
             }
             ];
-            
+        
+        // Keep track of max levels
+        this.totalLevels = this.levelDefs.length;
+
         ///
         /// Graphics
         ///
@@ -356,6 +359,14 @@ class SlingshotGame extends Phaser.Scene {
                 this.input.off('pointerdown', this.startDrag, this);
                 this.input.off('pointermove', this.doDrag, this);
                 this.input.off('pointerup', this.release, this);
+                
+                this.time.delayedCall(1000, () => {
+                    this.scene.start("GameOverScene", {
+                        score: window.score,
+                        outOfAmmo: true,
+                        completed: false
+                    });
+                });
         }
     }
 
@@ -503,11 +514,22 @@ class SlingshotGame extends Phaser.Scene {
     checkForLevelComplete() {
         // group.getLength() will be zero when no children remain
         if (this.enemies.getLength() === 0) {
-            this.time.delayedCall(500, () => {
-            // advance and wrap around if you like
-            this.currentLevel = (this.currentLevel + 1) % this.levelDefs.length;
-            this.loadLevel(this.currentLevel);
-            });
+            if (this.currentLevel + 1 >= this.totalLevels) {
+                // no more levels → game complete
+                this.time.delayedCall(500, () => {
+                    this.scene.start("GameOverScene", {
+                    score: window.score,
+                    outOfAmmo: false,
+                    completed: true
+                    });
+                });
+            } else {
+                this.time.delayedCall(500, () => {
+                // advance and wrap around if you like
+                this.currentLevel = (this.currentLevel + 1) % this.levelDefs.length;
+                this.loadLevel(this.currentLevel);
+                });
+            }
         }
     }
     drawPips() {
