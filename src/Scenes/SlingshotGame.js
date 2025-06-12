@@ -378,8 +378,9 @@ class SlingshotGame extends Phaser.Scene {
             this.drawPips();
         }
         // (GameOverScene scheduling handled in update when bird stops moving)
+        
         this.time.delayedCall(8000, () => {
-            this.resetBird();  // <- replace with your actual snap-back function name
+            this.resetBird();  // after 8 seconds, reset bird
         });
     }
 
