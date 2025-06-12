@@ -7,6 +7,8 @@ class SlingshotGame extends Phaser.Scene {
 
     }
 
+    
+
     preload() {
         // Cat Sprite Sheet
         this.load.spritesheet('bird', 'assets/2_Cat_Run-Sheet.png', {frameWidth: 32, frameHight: 32}); // Use your own image
@@ -24,6 +26,67 @@ class SlingshotGame extends Phaser.Scene {
     }
 
     create() {
+        // Level designs
+        this.levelDefs = [
+            {
+                // Level 1: simple ground platforms + one spinning wall + 3 enemies
+                platforms: [
+                { x: 600, y: 700, width: 300, height: 20 },
+                { x: 1100, y: 600, width: 200, height: 20 }
+                ],
+                spinningWalls: [
+                { x: 800, y: 500, angle: 0, spinSpeed: 0.002 }
+                ],
+                redWalls: [
+                { x: 1200, y: 400, angle: 0, spinSpeed: -0.002 }
+                ],
+                enemies: [
+                { x: 600, y: 650 },
+                { x: 1100, y: 550 },
+                { x: 1400, y: 450 }
+                ]
+            },
+            {
+                // Level 2: more red obstacles, narrow platforms
+                platforms: [
+                { x: 500, y: 750, width: 150, height: 20 },
+                { x: 900, y: 650, width: 150, height: 20 },
+                { x: 1300, y: 550, width: 150, height: 20 }
+                ],
+                spinningWalls: [
+                { x: 700, y: 500, angle: Math.PI/4, spinSpeed: 0.003 },
+                { x: 1200, y: 300, angle: 0, spinSpeed: -0.001 }
+                ],
+                redWalls: [
+                { x: 1000, y: 400, angle: Math.PI/2, spinSpeed: 0.002 }
+                ],
+                enemies: [
+                { x: 600, y: 720 },
+                { x: 950, y: 620 },
+                { x: 1350, y: 520 }
+                ]
+            },
+            {
+                // Level 3: clustered enemies behind a red spin-wall gauntlet
+                platforms: [
+                { x: 800, y: 800, width: 600, height: 20 }
+                ],
+                spinningWalls: [
+                { x: 700, y: 600, angle: 0, spinSpeed: 0.003 },
+                { x: 900, y: 600, angle: Math.PI/2, spinSpeed: -0.003 }
+                ],
+                redWalls: [
+                { x: 800, y: 550, angle: 0, spinSpeed: 0.004 }
+                ],
+                enemies: [
+                { x: 800, y: 520 },
+                { x: 850, y: 520 },
+                { x: 750, y: 520 },
+                { x: 800, y: 470 }
+                ]
+            }
+            ];
+
         // trajectory guide graphics
         this.trajectoryGfx = this.add.graphics();
         this.trajectoryGfx.lineStyle(2, 0xffffff, 1);
@@ -33,6 +96,14 @@ class SlingshotGame extends Phaser.Scene {
         this.anims.create({
             key: 'cat-run',
             frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 9 }),
+            frameRate: 12,
+            repeat: -1
+        });
+        
+        // Enemy anims
+        this.anims.create({
+            key: 'enemy-flap',
+            frames: this.anims.generateFrameNumbers('enemy', { start: 8, end: 15 }),
             frameRate: 12,
             repeat: -1
         });
@@ -83,12 +154,8 @@ class SlingshotGame extends Phaser.Scene {
         this.input.keyboard.on('keydown-R', () => {
             this.resetBird();
         });
-        // regenerate level on L key press
-        this.input.keyboard.on('keydown-L', () => {
-            // this.regenerateLevel(); 
-            this.shuffleEnemies();
-        });
-        //destroy enemies on contact with the bird
+
+                //destroy enemies on contact with the bird
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(pair => {
                 const { bodyA, bodyB } = pair;
@@ -111,82 +178,72 @@ class SlingshotGame extends Phaser.Scene {
             });
         });
         this.isDragging = false;
-        
-        //generate placeholder wall texture
-        const wallGfx = this.add.graphics();
-        wallGfx.fillStyle(0x888888);
-        wallGfx.fillRect(0, 0, 150, 20);
-        wallGfx.generateTexture('wall', 150, 20);
-        wallGfx.destroy();
-        //generate random static platforms for Matter physics
+  
+        // initialize groups
         this.platforms = [];
-        const platformCount = 5;
-        for (let i = 0; i < platformCount; i++) {
-            const px = Phaser.Math.Between(300, 1700);
-            const py = Phaser.Math.Between(200, 800);
-            const platform = this.matter.add.sprite(px, py, 'wall', null, { isStatic: true });
-            platform.setOrigin(0.5);
-            platform.setScale(1, 0.5);
-            this.platforms.push(platform);
+        this.walls      = this.add.group();
+        this.redWalls   = this.add.group();
+        this.enemies    = this.add.group();
+
+        this.currentLevel = 0;
+        this.loadLevel(this.currentLevel);
+
+        // advance on “N” (or cycle)
+        this.input.keyboard.on('keydown-N', () => {
+            this.currentLevel = (this.currentLevel + 1) % this.levelDefs.length;
+            this.loadLevel(this.currentLevel);
+        });
         }
 
-        //spawn rotating walls
-        this.walls = this.add.group();
-        const wallCount = 2;
-        for (let i = 0; i < wallCount; i++) {
-            const x = Phaser.Math.Between(400, 1500);
-            const y = Phaser.Math.Between(100, 800);
-            const wall = this.matter.add.sprite(x, y, 'wall', null, { isStatic: true });
-            wall.setOrigin(0.5);
-            wall.setIgnoreGravity(true);
-            wall.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
-            wall.spinSpeed = Phaser.Math.FloatBetween(-0.001, 0.001);
-            this.walls.add(wall);
-        }
+        // clear & spawn everything from levelDefs
+        loadLevel(idx) {
+        // clear existing
+        this.platforms.forEach(p => p.destroy());
+        this.platforms = [];
+        this.walls.clear(true, true);
+        this.redWalls.clear(true, true);
+        this.enemies.clear(true, true);
 
-        // generate placeholder red obstacle texture
-        const redGfx = this.add.graphics();
-        redGfx.fillStyle(0xff0000);
-        redGfx.fillRect(0, 0, 150, 20);
-        redGfx.generateTexture('redWall', 150, 20);
-        redGfx.destroy();
+        const def = this.levelDefs[idx];
 
-        // spawn red spinning obstacles that reset bird on collision
-        this.redWalls = this.add.group();
-        const redCount = 3;
-        for (let i = 0; i < redCount; i++) {
-            const x = Phaser.Math.Between(400, 1500);
-            const y = Phaser.Math.Between(100, 800);
-            const red = this.matter.add.sprite(x, y, 'redWall', null, { isStatic: true });
-            red.setOrigin(0.5);
-            red.setIgnoreGravity(true);
-            red.rotation = Phaser.Math.FloatBetween(0, Math.PI * 2);
-            red.spinSpeed = Phaser.Math.FloatBetween(-0.002, 0.002);
-            this.redWalls.add(red);
-        }
-
-        // Spawn our “enemy” sprites
-        this.enemies = this.add.group();
-        // Gave them a simple flapping animation
-        this.anims.create({
-          key: 'enemy-flap',
-         frames: this.anims.generateFrameNumbers('enemy', { start: 8, end: 15 }),
-          frameRate: 6,
-          repeat: -1
+        // platforms
+        def.platforms.forEach(p => {
+            const plat = this.matter.add.sprite(p.x, p.y, 'wall', null, { isStatic: true });
+            plat.setDisplaySize(p.width, p.height).setOrigin(0.5);
+            this.platforms.push(plat);
         });
 
-        const enemyNumber = 10;
+        // spinning walls
+        def.spinningWalls.forEach(w => {
+            const wall = this.matter.add.sprite(w.x, w.y, 'wall', null, { isStatic: true });
+            wall.setOrigin(0.5);
+            wall.setIgnoreGravity(true);
+            wall.rotation = w.angle;
+            wall.spinSpeed = w.spinSpeed;
+            this.walls.add(wall);
+        });
 
-        for (let i = 0; i < enemyNumber; i++) {
-            const x = Phaser.Math.Between(400, 1500);
-            const y = Phaser.Math.Between(100, 800);
-            const e = this.matter.add.sprite(x, y, 'enemy', 0, { isStatic: true });
-            e.setScale(3);                 //scale up from 16×16 if you like
-            e.setCircle(8 * e.scaleX);    //match collision to sprite size
-            e.setIgnoreGravity(true);
-            e.play('enemy-flap');
-            this.enemies.add(e);
-        }
+        // red walls
+        def.redWalls.forEach(r => {
+            const red = this.matter.add.sprite(r.x, r.y, 'redWall', null, { isStatic: true });
+            red.setOrigin(0.5);
+            red.setIgnoreGravity(true);
+            red.rotation = r.angle;
+            red.spinSpeed = r.spinSpeed;
+            this.redWalls.add(red);
+        });
+
+        // enemies
+        def.enemies.forEach(e => {
+            const enemy = this.matter.add.sprite(e.x, e.y, 'enemy', 0, { isStatic: true });
+            enemy.setScale(3)
+                .setCircle(8 * enemy.scaleX)
+                .setIgnoreGravity(true)
+                .play('enemy-flap');
+            this.enemies.add(enemy);
+        });
+
+
 
         this.my.text.score = this.add.bitmapText(750, 0, "rocketSquare", "Score:\n" + window.score).setScale(2);
 
