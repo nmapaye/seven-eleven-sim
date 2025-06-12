@@ -379,9 +379,6 @@ class SlingshotGame extends Phaser.Scene {
         }
         // (GameOverScene scheduling handled in update when bird stops moving)
         
-        this.time.delayedCall(8000, () => {
-            this.resetBird();  // after 8 seconds, reset bird
-        });
     }
 
     resetBird() {
@@ -431,7 +428,7 @@ class SlingshotGame extends Phaser.Scene {
         // Slight Parallax/Scrolling Background
         this.bg.tilePositionX += 0.02 * delta;
 
-        //check if bird left screen and schedule reset
+        //check if bird left screen or stopped and schedule reset
         if (!this.resetScheduled && !this.bird.body.isStatic) {
             const width = this.scale.width;
             const height = this.scale.height;
@@ -439,7 +436,12 @@ class SlingshotGame extends Phaser.Scene {
                 this.resetScheduled = true;
                 this.time.delayedCall(3000, this.resetBird, [], this);
             }
+            else if (this.bird.body.velocity.x === 0 && this.bird.body.velocity.y === 0){
+                this.resetScheduled = true;
+                this.time.delayedCall(3000, this.resetBird, [], this);
         }
+        }
+        
 
         //rotate walls
         this.walls.getChildren().forEach(wall => {
@@ -470,6 +472,8 @@ class SlingshotGame extends Phaser.Scene {
                 });
             });
         }
+
+        
     }
     
     regenerateLevel() {
